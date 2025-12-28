@@ -50,7 +50,7 @@ class DetectedPattern:
 def _classify_shape(contour: np.ndarray) -> Optional[str]:
     """
     Clasifica la forma de un contorno en:
-    - "triangle"
+    - "triangle"    
     - "square"
     - "circle"
     - "line"
