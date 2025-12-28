@@ -5,7 +5,7 @@ from color_shape_detector import detect_color_shape, draw_detected_pattern
 from password_decoder import PasswordDecoder, DecoderConfig
 
 
-PASSWORD = ["red_circle", "blue_triangle", "green_square", "yellow_line"]
+PASSWORD = ["blue_square", "red_circle",  "green_square", "yellow_line"]
 
 
 def draw_overlay(frame, decoder: PasswordDecoder, current_label):
@@ -22,12 +22,6 @@ def draw_overlay(frame, decoder: PasswordDecoder, current_label):
     cv2.putText(out, prog_txt, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,0,0), 3, cv2.LINE_AA)
     cv2.putText(out, prog_txt, (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255,255,255), 1, cv2.LINE_AA)
 
-    # Barra visual
-    blocks = ["■" if i < prog else "□" for i in range(4)]
-    bar = " ".join(blocks)
-    cv2.putText(out, bar, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0,0,0), 3, cv2.LINE_AA)
-    cv2.putText(out, bar, (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255,255,255), 1, cv2.LINE_AA)
-
     # Secuencia parcial
     seq_txt = f"Secuencia: {decoder.progress_str()}"
     cv2.putText(out, seq_txt, (10, 120), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,0,0), 3, cv2.LINE_AA)
@@ -40,12 +34,12 @@ def draw_overlay(frame, decoder: PasswordDecoder, current_label):
 
     # Resultado final (si existe)
     if decoder.last_result is not None:
-        res_txt = "CONTRASENA CORRECTA ✅" if decoder.last_result else "CONTRASENA INCORRECTA ❌"
+        res_txt = "ENHORABUENA CONTRASENA CORRECTA" if decoder.last_result else "INTENTALO OTRA VEZ CONTRASENA INCORRECTA "
         cv2.putText(out, res_txt, (10, 190), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,0,0), 3, cv2.LINE_AA)
         cv2.putText(out, res_txt, (10, 190), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,255), 1, cv2.LINE_AA)
 
     # Ayuda
-    help_txt = "Pulsa 'r' para resetear, 'q' para salir. (Retira el patron entre simbolos)"
+    help_txt = "'r': resetear |  'q': salir"
     cv2.putText(out, help_txt, (10, 220), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0,0,0), 3, cv2.LINE_AA)
     cv2.putText(out, help_txt, (10, 220), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255,255,255), 1, cv2.LINE_AA)
 

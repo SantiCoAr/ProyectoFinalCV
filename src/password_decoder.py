@@ -14,9 +14,9 @@ class DecoderState(Enum):
 
 @dataclass
 class DecoderConfig:
-    stable_frames_required: int = 12   # cuántos frames iguales para considerar estable
-    release_frames_required: int = 8   # cuántos frames None para considerar "se retiró"
-    cooldown_seconds: float = 0.6      # tiempo mínimo entre aceptaciones (extra seguridad)
+    stable_frames_required: int = 15   # cuántos frames iguales para considerar estable
+    release_frames_required: int = 10   # cuántos frames None para considerar "se retiró"
+    cooldown_seconds: float = 1.5    # tiempo mínimo entre aceptaciones (extra seguridad)
 
 
 class PasswordDecoder:
@@ -121,7 +121,7 @@ class PasswordDecoder:
         return len(self.entered)
 
     def progress_str(self) -> str:
-        return " - ".join(self.entered) if self.entered else "(vacío)"
+        return " - ".join(self.entered) if self.entered else "(vacio)"
 
     def stability_meter(self) -> str:
         # para mostrar cuánto falta para “aceptar” el actual
