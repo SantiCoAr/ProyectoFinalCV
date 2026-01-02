@@ -138,7 +138,7 @@ def main():
         now = time.time()
         dt = now - last_t
         if dt > 0:
-            fps = 0.9 * fps + 0.1 * (1.0 / dt)
+            fps = 0.9 * fps + 0.1 * (1.0 / dt)  # para suavizar el numero de FPS que salen y que sea legible y evitar saltos irreales que se arreglan en microsegundos
         last_t = now
 
         # -----------------------
