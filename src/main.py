@@ -31,12 +31,6 @@ def overlay_text(frame, text, x, y, scale=0.7):
     cv2.putText(frame, text, (x, y), cv2.FONT_HERSHEY_SIMPLEX, scale, (255, 255, 255), 1, cv2.LINE_AA)
 
 
-def draw_progress_bar(frame, progress, total=4, x=10, y=95):
-    blocks = ["■" if i < progress else "□" for i in range(total)]
-    bar = " ".join(blocks)
-    overlay_text(frame, bar, x, y, 0.9)
-
-
 def draw_bbox(frame, bbox, offset_x=0, ok=True):
     x, y, w, h = bbox
     x += offset_x
@@ -158,7 +152,6 @@ def main():
 
             overlay_text(vis, f"Actual: {current_label if current_label else '(ninguno)'}", 10, 90, 0.65)
             overlay_text(vis, f"Progreso: {decoder.progress()}/4", 10, 120, 0.65)
-            draw_progress_bar(vis, decoder.progress(), 4, 10, 155)
 
             overlay_text(vis, f"Secuencia: {decoder.progress_str()}", 10, 190, 0.55)
             overlay_text(vis, f"Estado: {decoder.state_str()} | Estab: {decoder.stability_meter()}",

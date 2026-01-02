@@ -21,7 +21,7 @@ class DecoderConfig:
 
 class PasswordDecoder:
     """
-    Decodificador automático (sin teclas de confirmación):
+    Decodificador automático:
     - Acepta un símbolo cuando es estable N frames.
     - Después exige "release" (detectar None M frames) para evitar contar repetido.
     - Al llegar a 4 símbolos, valida contra la contraseña y resetea el intento.
@@ -74,8 +74,7 @@ class PasswordDecoder:
         """
         now = time.time()
 
-        # Limpia resultado mostrado pasado un rato (si lo quieres mantener 1-2s)
-        # (Esto no resetea el intento; solo la “notificación”)
+        # Limpia resultado mostrado pasado un rato
         if self.last_result is not None and (now - self.last_result_time) > 2.0:
             self.last_result = None
 
@@ -116,7 +115,7 @@ class PasswordDecoder:
                 self.state = DecoderState.WAIT_STABLE
                 self._none_count = 0
 
-    # --------- helpers para UI ----------
+    # Helpers para UI
     def progress(self) -> int:
         return len(self.entered)
 
