@@ -1,5 +1,4 @@
 # finger_detector.py
-# (ahora es un detector genérico por color)
 
 from __future__ import annotations
 from dataclasses import dataclass

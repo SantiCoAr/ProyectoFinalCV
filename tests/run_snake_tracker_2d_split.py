@@ -1,11 +1,17 @@
 # run_snake_tracker_2p_split.py
 
+import sys
+from pathlib import Path
+
+# Agregar el directorio raíz del proyecto al path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import time
 import cv2
 
-from finger_detector import ColorMarkerDetector
-from kalman_tracker import Kalman2DTracker, KalmanConfig
-from snake_game import SnakeGame, SnakeConfig
+from src.finger_detector import ColorMarkerDetector
+from src.kalman_tracker import Kalman2DTracker, KalmanConfig
+from src.snake_game import SnakeGame, SnakeConfig
 
 
 WIN_SCORE = 10  # gana el primero en llegar a esto

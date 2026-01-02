@@ -1,7 +1,13 @@
 # run_color_shape_live.py
 
+import sys
+from pathlib import Path
+
+# Agregar el directorio raíz del proyecto al path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 import cv2
-from color_shape_detector import detect_color_shape, draw_detected_pattern
+from src.color_shape_detector import detect_color_shape, draw_detected_pattern
 
 
 def main():
