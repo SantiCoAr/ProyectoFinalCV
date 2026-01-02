@@ -68,6 +68,13 @@ def clamp_center(cx, cy, w, h):
     return cx, cy
 
 
+def reset_unlocked_game(snake1, snake2, kf1, kf2):
+    snake1.reset()
+    snake2.reset()
+    kf1.reset()
+    kf2.reset()
+
+
 def main():
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
@@ -121,7 +128,7 @@ def main():
     print("Estado inicial: LOCKED (introducir contraseña)")
     print("Contraseña:", " - ".join(PASSWORD))
     print("Luego: UNLOCKED -> Snake 2P Split")
-    print("Teclas: q salir | r reset (según modo) | m masks on/off | k reset kalman (solo UNLOCKED)")
+    print("Teclas: q salir | r reset (según modo) | m masks on/off | k reset kalman (solo UNLOCKED) | n nueva partida (solo cuando hay ganador)")
 
     while True:
         ret, frame = cap.read()
@@ -168,11 +175,7 @@ def main():
                 if decoder.last_result is True:
                     # transición a tracker
                     state = AppState.UNLOCKED
-                    # resetea estado del tracker para empezar “limpio”
-                    snake1.reset()
-                    snake2.reset()
-                    kf1.reset()
-                    kf2.reset()
+                    reset_unlocked_game(snake1, snake2, kf1, kf2)
                     miss1, miss2 = 0, 0
                     winner = None
                     print(">>> UNLOCKED: entrando en tracker 2P split")
@@ -251,13 +254,14 @@ def main():
                     y = max(0, min(H - bh, y))
                     bbox2 = (x, y, bw, bh)
 
-            # Actualizar snakes
-            if tracked1 is not None and miss1 <= miss_limit:
-                snake1.update(tracked1)
-            if tracked2 is not None and miss2 <= miss_limit:
-                snake2.update(tracked2)
+            # Actualizar snakes SOLO si no hay ganador (freeze al ganar)
+            if winner is None:
+                if tracked1 is not None and miss1 <= miss_limit:
+                    snake1.update(tracked1)
+                if tracked2 is not None and miss2 <= miss_limit:
+                    snake2.update(tracked2)
 
-            # victoria
+            # Victoria (sin auto-reset)
             if winner is None:
                 if snake1.score >= WIN_SCORE:
                     winner = "P1 (IZQUIERDA)"
@@ -265,14 +269,6 @@ def main():
                 elif snake2.score >= WIN_SCORE:
                     winner = "P2 (DERECHA)"
                     winner_time = now
-            else:
-                if (now - winner_time) > 3.0:
-                    winner = None
-                    snake1.reset()
-                    snake2.reset()
-                    kf1.reset()
-                    kf2.reset()
-                    miss1, miss2 = 0, 0
 
             # Dibujo
             vis = frame.copy()
@@ -296,11 +292,16 @@ def main():
             overlay_text(vis, f"P1: {st1}", 10, 120, 0.55)
             overlay_text(vis, f"P2: {st2}", halfW + 10, 120, 0.55)
 
-            overlay_text(vis, "Teclas: r reset partida | k reset kalman | m masks | q salir",
-                         10, H - 15, 0.55)
+            if winner is None:
+                overlay_text(vis, "Teclas: r reset partida | k reset kalman | m masks | q salir",
+                             10, H - 15, 0.55)
+            else:
+                overlay_text(vis, "Teclas: n nueva partida | q salir",
+                             10, H - 15, 0.55)
 
             if winner is not None:
-                overlay_text(vis, f"GANADOR: {winner}", halfW - 170, H // 2, 1.0)
+                overlay_text(vis, f"GANADOR: {winner}", halfW - 220, H // 2 - 20, 1.0)
+                overlay_text(vis, "Pulsa 'n' para nueva partida o 'q' para salir", halfW - 320, H // 2 + 30, 0.7)
 
             cv2.imshow("MAIN (Password + Tracker)", vis)
 
@@ -325,25 +326,31 @@ def main():
             if key == ord("r"):
                 decoder.reset()
             if key == ord("m"):
-                # en locked no hay máscaras, pero lo dejamos por consistencia (no hace nada)
                 show_masks = False
 
         else:
-            if key == ord("r"):
-                snake1.reset()
-                snake2.reset()
-                winner = None
-                miss1, miss2 = 0, 0
-            elif key == ord("k"):
-                kf1.reset()
-                kf2.reset()
-                miss1, miss2 = 0, 0
-            elif key == ord("m"):
-                show_masks = not show_masks
+            # Si hay ganador, solo permitimos nueva partida con 'n' (y salir con 'q')
+            if winner is not None:
+                if key == ord("n"):
+                    reset_unlocked_game(snake1, snake2, kf1, kf2)
+                    miss1, miss2 = 0, 0
+                    winner = None
+                # opcional: ignoramos r/k/m mientras hay ganador para evitar estados raros
+            else:
+                if key == ord("r"):
+                    snake1.reset()
+                    snake2.reset()
+                    winner = None
+                    miss1, miss2 = 0, 0
+                elif key == ord("k"):
+                    kf1.reset()
+                    kf2.reset()
+                    miss1, miss2 = 0, 0
+                elif key == ord("m"):
+                    show_masks = not show_masks
 
     cap.release()
     cv2.destroyAllWindows()
-
 
 if __name__ == "__main__":
     main()
