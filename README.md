@@ -55,12 +55,12 @@ ProyectoFinalCV/
 │   ├── calibration.py           # Calibración de cámara
 │   └── __pycache__/
 ├── data/                        # Imágenes / datos de calibración
-├── assets/                      # Recursos adicionales
-├── template/                    # Plantilla LaTeX para el informe
+├── assets/                      # Recursos adicionales como el vídeo
+├── report/                      # Informe
 ├── environment_win.yml          # Entorno Conda (Windows)
 ├── environment_unix.yml         # Entorno Conda (Linux)
 ├── environment_mac.yml          # Entorno Conda (macOS)
-└── README.md                    # Este archivo
+└── README.md                    
 
 ---
 
@@ -139,9 +139,11 @@ python main.py
 
 ## Informe
 
-El informe del proyecto se ha realizado en LaTeX, utilizando la plantilla proporcionada en la carpeta template/, e incluye:
+El informe del proyecto se ha realizado en LaTeX e incluye:
 - Descripción del sistema
 - Metodología y algoritmos
+- Diagrama de bloques
+- Secuenciación de imágenes
 - Implementación
 - Resultados experimentales
 - Conclusiones
