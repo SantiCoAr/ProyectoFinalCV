@@ -52,7 +52,7 @@ def draw_bbox(frame, bbox, offset_x=0, ok=True):
 def draw_snake(frame, snake: SnakeGame, offset_x=0):
     # comida
     fx, fy = snake.food
-    cv2.circle(frame, (fx + offset_x, fy), 12, (255, 255, 255), -1)
+    cv2.circle(frame, (fx + offset_x, fy), 12, (0, 0, 0), -1)
 
     # serpiente
     segs = snake.get_segments()
@@ -61,7 +61,7 @@ def draw_snake(frame, snake: SnakeGame, offset_x=0):
         for i in range(1, len(segs)):
             x1, y1 = segs[i - 1]
             x2, y2 = segs[i]
-            cv2.line(frame, (x1 + offset_x, y1), (x2 + offset_x, y2), (255, 255, 255), 6)
+            cv2.line(frame, (x1 + offset_x, y1), (x2 + offset_x, y2), (0, 0, 0), 6)
 
     # cabeza (el último punto del cuerpo es la cabeza)
     hx, hy = snake.get_head()
@@ -87,6 +87,8 @@ def reset_unlocked_game(snake1, snake2, kf1, kf2):
 
 def main():
     cap = cv2.VideoCapture(0)
+    cv2.namedWindow("MAIN (Password + Tracker)", cv2.WINDOW_NORMAL)
+    cv2.resizeWindow("MAIN (Password + Tracker)", 1280, 720)
     if not cap.isOpened():
         print("No se ha podido abrir la cámara.")
         return
@@ -191,10 +193,6 @@ def main():
 
             # Secuencia ya aceptada
             overlay_text(vis, f"Secuencia: {decoder.progress_str()}", 10, 190, 0.55)
-
-            # Estado interno del decoder
-            overlay_text(vis, f"Estado: {decoder.state_str()} | Estab: {decoder.stability_meter()}",
-                         10, 220, 0.5)
 
             overlay_text(vis, "'r' reset. 'q' salir.",
                          10, H - 15, 0.55)
