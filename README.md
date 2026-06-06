@@ -1,164 +1,196 @@
-# Proyecto Final – Visión por Ordenador  
-## Sistema de Contraseña Visual + Tracker 2D tipo Snake (2 jugadores)
+# Visual Password and Two-Player Snake Tracker
 
-Este repositorio contiene el Proyecto Final de la asignatura de Visión por Computador.  
-El sistema integra detección de patrones visuales, decodificación automática de una contraseña, tracking por color con Filtro de Kalman (2D) y un juego tipo Snake para dos jugadores.
+Final project for the Computer Vision course at Universidad Pontificia Comillas ICAI.
 
----
+This repository contains a real-time OpenCV application that combines a visual password system with a two-player, camera-controlled Snake game. The user first unlocks the application by showing a sequence of colored geometric symbols to the webcam. After a successful unlock, the camera feed is split into two play areas and each player controls a snake with a colored marker.
 
-## Descripción general del sistema
+## What the Project Does
 
-El sistema funciona en dos fases principales:
+The application has two main stages:
 
-### Fase 1 – Contraseña visual (LOCKED)
-El usuario debe introducir una contraseña compuesta por 4 símbolos visuales, detectados mediante cámara:
+1. **Locked mode: visual password**
+   - Detects colored geometric patterns from the webcam.
+   - Classifies each detection as a combined color/shape label, such as `red_circle`.
+   - Accepts a symbol only after it remains stable for several frames.
+   - Requires the user to remove the symbol before accepting the next one, avoiding accidental duplicate inputs.
+   - Unlocks the game when the full password sequence is correct.
 
-1. Círculo rojo  
-2. Triángulo azul  
-3. Cuadrado verde  
-4. Línea amarilla  
+2. **Unlocked mode: two-player Snake**
+   - Splits the webcam image into left and right halves.
+   - Player 1 uses a green marker on the left side.
+   - Player 2 uses a red marker on the right side.
+   - Tracks each marker with HSV color segmentation.
+   - Smooths and predicts marker motion with an independent 2D Kalman filter for each player.
+   - Uses the tracked marker position as the snake head.
+   - Ends the round when one player reaches the target score.
 
-Cada símbolo se acepta automáticamente cuando:
-- es detectado de forma estable durante varios frames, y
-- el usuario retira el patrón antes de introducir el siguiente.
+The default password in `src/main.py` is:
 
-Si la secuencia es correcta, el sistema se desbloquea.
+```text
+red_circle -> blue_triangle -> green_square -> yellow_line
+```
 
----
+## Repository Structure
 
-### Fase 2 – Tracker 2D + Juego Snake (UNLOCKED)
-
-Una vez desbloqueado:
-- La pantalla se divide en dos mitades (dos jugadores).
-- Cada jugador controla una serpiente usando un marcador de color frente a la cámara:
-  - Jugador 1 (izquierda): verde
-  - Jugador 2 (derecha): rojo
-- Se utiliza un Filtro de Kalman 2D para suavizar el tracking y predecir posiciones cuando se pierde la detección.
-- Los jugadores compiten por alcanzar una puntuación objetivo.
-
-Cuando un jugador gana, se muestra un mensaje y se permite:
-- empezar una nueva partida, o
-- salir del programa.
-
----
-
-## Estructura del repositorio
-
+```text
 ProyectoFinalCV/
-├── src/
-│   ├── main.py                  # Script principal (contraseña + tracker + juego)
-│   ├── color_shape_detector.py  # Detección de color y forma
-│   ├── password_decoder.py      # Lógica de decodificación de la contraseña
-│   ├── finger_detector.py       # Detector de marcador por color
-│   ├── kalman_tracker.py        # Tracker 2D con Filtro de Kalman
-│   ├── snake_game.py            # Lógica del juego Snake
-│   ├── calibration.py           # Calibración de cámara
-│   └── __pycache__/
-├── data/                        # Imágenes / datos de calibración
-├── assets/                      # Recursos adicionales como el vídeo
-├── report/                      # Informe
-├── environment_win.yml          # Entorno Conda (Windows)
-├── environment_unix.yml         # Entorno Conda (Linux)
-├── environment_mac.yml          # Entorno Conda (macOS)
-└── README.md                    
++-- src/
+|   +-- main.py                  # Main application: password + tracker + Snake
+|   +-- color_shape_detector.py  # HSV color segmentation and shape classification
+|   +-- password_decoder.py      # Stable-frame visual password decoder
+|   +-- finger_detector.py       # Colored marker detector for player tracking
+|   +-- kalman_tracker.py        # 2D Kalman filter wrapper
+|   +-- snake_game.py            # Snake game state and scoring logic
+|   +-- calibracion.py           # Camera calibration from chessboard images
++-- tests/
+|   +-- run_color_shape_live.py        # Live color/shape detector demo
+|   +-- run_password_system_live.py    # Live password decoder demo
+|   +-- run_snake_tracker_2d_split.py  # Live two-player tracker/Snake demo
++-- data/                        # Calibration and experiment images
++-- report/                      # Final project report PDF
++-- output_pipeline/             # Generated outputs, if produced locally
++-- environment_win.yml          # Conda environment for Windows
++-- environment_unix.yml         # Conda environment for Linux/Unix
++-- environment_macos.yml        # Conda environment for macOS
++-- README.md
+```
 
----
+## Requirements
 
-## Requisitos
+- Python 3.9
+- Conda or Miniconda
+- A working webcam
+- Good, even lighting
+- Physical colored markers or printed colored shapes:
+  - Password stage: red circle, blue triangle, green square, yellow line
+  - Game stage: green marker for Player 1, red marker for Player 2
 
-- Python 3.9 o superior
-- Conda / Miniconda
-- Cámara web funcional
-- Sistema operativo:
-  - Windows
-  - Linux
-  - macOS
+The supplied Conda environments include the main dependencies, including OpenCV, NumPy, SciPy, and Matplotlib.
 
----
+## Installation
 
-## Entorno virtual (Conda)
+Create the Conda environment for your operating system from the repository root.
 
-El proyecto proporciona archivos environment_*.yml con todas las dependencias necesarias.
+### Windows
 
-### Crear el entorno
-
-Selecciona el archivo según tu sistema operativo:
-
-#### Windows
+```bash
 conda env create -f environment_win.yml
+conda activate voi-lab
+```
 
-#### Linux / Unix
+### Linux / Unix
+
+```bash
 conda env create -f environment_unix.yml
+conda activate voi-lab
+```
 
-#### macOS
-conda env create -f environment_mac.yml
+### macOS
 
-### Activar el entorno
-conda activate <nombre_del_entorno>
+```bash
+conda env create -f environment_macos.yml
+conda activate voi-lab
+```
 
-(El nombre del entorno está definido dentro del archivo .yml)
+If an environment already exists and you need to refresh it:
 
-### Actualizar el entorno (si se modifica el .yml)
+```bash
 conda env update -f environment_win.yml --prune
-conda env update -f environment_unix.yml --prune
-conda env update -f environment_mac.yml --prune
+```
 
----
+Use the matching `environment_*.yml` file for your operating system.
 
-## Ejecución del proyecto
+## Running the Main Application
 
-Desde la carpeta src/:
-python main.py
+From the repository root:
 
----
+```bash
+python src/main.py
+```
 
-## Controles
+The program opens the webcam and starts in `LOCKED` mode. Show the password symbols in order, removing each symbol after it has been accepted. When the sequence is correct, the application switches to the two-player Snake tracker.
 
-### Fase contraseña (LOCKED)
-- r → resetear intento de contraseña
-- q → salir
+If the webcam does not open, check that no other application is using it. If your system exposes the camera at a different index, update `cv2.VideoCapture(0)` in the script you are running.
 
-### Fase juego (UNLOCKED)
-- r → resetear partida
-- k → resetear Kalman
-- m → mostrar / ocultar máscaras (debug)
-- n → nueva partida (solo cuando hay ganador)
-- q → salir
+## Controls
 
----
+### Locked Mode
 
-## Algoritmos utilizados
+| Key | Action |
+| --- | --- |
+| `r` | Reset the current password attempt |
+| `q` | Quit |
 
-- Segmentación por color en espacio HSV
-- Clasificación geométrica de contornos
-- Decodificación robusta de secuencias visuales
-- Filtro de Kalman 2D para tracking
-- Procesamiento en tiempo real con OpenCV
+### Unlocked Mode
 
----
+| Key | Action |
+| --- | --- |
+| `r` | Reset the current Snake round |
+| `k` | Reset both Kalman filters |
+| `m` | Show or hide segmentation masks for debugging |
+| `n` | Start a new round after a winner is shown |
+| `q` | Quit |
 
-## Informe
+## Live Component Demos
 
-El informe del proyecto se ha realizado en LaTeX e incluye:
-- Descripción del sistema
-- Metodología y algoritmos
-- Diagrama de bloques
-- Secuenciación de imágenes
-- Implementación
-- Resultados experimentales
-- Conclusiones
+The `tests/` directory contains standalone scripts for testing individual parts of the pipeline with a webcam:
 
----
+```bash
+python tests/run_color_shape_live.py
+python tests/run_password_system_live.py
+python tests/run_snake_tracker_2d_split.py
+```
 
-## Autores
+These are useful for tuning lighting, marker colors, HSV thresholds, and camera placement before running the full application.
 
-- Santiago Córdoba Artieda
-- Gonzalo García Martínez-Echevarría
+## Technical Overview
 
-Proyecto desarrollado para la asignatura de Visión por Ordenador.
+The project uses classic computer vision techniques rather than a trained model:
 
----
+- **HSV segmentation** isolates colored objects from the webcam feed.
+- **Morphological opening and closing** reduce noise in binary masks.
+- **Contour extraction** finds candidate objects.
+- **Shape classification** uses polygon approximation, aspect ratio, and circularity.
+- **Stable-frame decoding** makes the password input robust to flickering detections.
+- **2D Kalman filtering** estimates marker position and velocity as `[x, y, vx, vy]`.
+- **Split-screen tracking** gives each player an independent board and tracker.
 
-## Licencia
+## Calibration
 
-Uso académico / educativo.
+`src/calibracion.py` contains a chessboard-based camera calibration script. It loads images from `data/*.jpg`, detects internal chessboard corners, refines them with `cornerSubPix`, and estimates the camera matrix and distortion coefficients with `cv2.calibrateCamera`.
+
+The script assumes a chessboard pattern of `(7, 9)` internal corners and a square size of `20` units. Adjust those values if your calibration board is different.
+
+Run it from the repository root:
+
+```bash
+python src/calibracion.py
+```
+
+## Practical Tips
+
+- Use saturated colors and avoid backgrounds with similar colors.
+- Keep the objects large enough in the frame; very small contours are filtered out as noise.
+- Avoid strong shadows and reflections.
+- Remove each password symbol from the camera view before showing the next one.
+- Keep Player 1 on the left half of the image and Player 2 on the right half after unlocking.
+- Use `m` in unlocked mode to inspect the color masks if tracking is unstable.
+
+## Report
+
+The full academic report is available in:
+
+```text
+report/Informe_Computer_Vision_Gonzalo_Garcia_Santiago_Cordoba.pdf
+```
+
+It includes the project methodology, implementation details, experimental results, and conclusions.
+
+## Authors
+
+- Santiago Cordoba Artieda
+- Gonzalo Garcia Martinez-Echevarria
+
+## License
+
+Academic and educational use.
